@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { ENV } from "../config/environments";
+import { ENV } from "../config/environments.js";
 
 export const generateAccessToken = (userId, userRole) => {
   try {

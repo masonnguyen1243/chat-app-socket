@@ -4,6 +4,11 @@ import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import { ENV } from "../config/environments.js";
 import SendEmail from "../utils/SendEmail.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/GenerateToken.js";
+import ms from "ms";
 
 export const register = async (req, res) => {
   try {
@@ -62,6 +67,61 @@ export const register = async (req, res) => {
     return res
       .status(StatusCodes.CREATED)
       .json({ success: true, data: newUser });
+  } catch (error) {
+    console.error(`Error in register controller`);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "All fields are required!" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "Account not found" });
+    }
+
+    if (!user.isActive) {
+      return res
+        .status(StatusCodes.NOT_ACCEPTABLE)
+        .json({ success: false, message: "Your account is not active" });
+    }
+
+    const isMatchPassword = await bcrypt.compare(password, user.password);
+    if (!isMatchPassword) {
+      return res
+        .status(StatusCodes.NOT_ACCEPTABLE)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    const accessToken = generateAccessToken(user._id, user.role);
+    const refreshToken = generateRefreshToken(user._id, user.role);
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: ENV.NODE_ENV !== "development" ? true : false,
+      sameSite: "strict",
+      maxAge: ms("7 days"),
+    };
+
+    res.cookie("accessToken", accessToken, cookieOptions);
+    res.cookie("refreshToken", refreshToken, cookieOptions);
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Logged in successfully!",
+      data: { user, accessToken, refreshToken },
+    });
   } catch (error) {
     console.error(`Error in login controller`);
     return res
