@@ -4,6 +4,7 @@ import cors from "cors";
 import { ENV } from "./config/environments.js";
 import fileUpload from "express-fileupload";
 import { connectDB } from "./config/db.js";
+import { initRoutes } from "./routes/index.js";
 
 const app = express();
 const PORT = ENV.PORT;
@@ -26,7 +27,7 @@ app.use(
     tempFileDir: "./temp/",
   })
 );
-
+initRoutes(app);
 connectDB();
 
 app.get("/status", (req, res) => {

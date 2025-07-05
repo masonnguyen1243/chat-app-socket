@@ -19,4 +19,8 @@ export const ENV = {
   NODE_ENV: process.env.NODE_ENV,
 
   FRONTEND_URL: process.env.FRONTEND_URL,
+
+  BREVO_API_KEY: process.env.BREVO_API_KEY,
+  ADMIN_EMAIL_ADDRESS: process.env.ADMIN_EMAIL_ADDRESS,
+  ADMIN_EMAIL_NAME: process.env.ADMIN_EMAIL_NAME,
 };
