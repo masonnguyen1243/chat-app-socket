@@ -15,6 +15,14 @@ export const register = async (req, res) => {
         .json({ success: false, message: "All fields are required!" });
     }
 
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        success: false,
+        message: "Invalid email format.",
+      });
+    }
+
     if (password.length < 8) {
       return res.status(StatusCodes.NOT_ACCEPTABLE).json({
         success: false,
