@@ -169,3 +169,75 @@ export const verifyAccount = async (req, res) => {
       .json({ success: false, message: error.message });
   }
 };
+
+export const loginWithGoogle = async (req, res) => {
+  try {
+    const { email, username, avatar } = req.body;
+    const user = await User.findOne({ email });
+
+    if (user) {
+      const accessToken = generateAccessToken(user._id, user.role);
+      const refreshToken = generateRefreshToken(user._id, user.role);
+
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: ms("7 days"),
+      };
+
+      res.cookie("accessToken", accessToken, cookieOptions);
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+
+      return res
+        .status(200)
+        .json({ success: true, data: { user, accessToken, refreshToken } });
+    } else {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+
+      const hashedPassword = await bcrypt.hash(generatedPassword, 10);
+      const newUser = new User({
+        username:
+          username.toLowerCase().split(" ").join("") +
+          Math.random().toString(9).slice(-4),
+        email,
+        password: hashedPassword,
+        avatar,
+        isActive: true,
+        verifyToken: null,
+      });
+
+      await newUser.save();
+
+      const accessToken = generateAccessToken(user._id, user.role);
+      const refreshToken = generateRefreshToken(user._id, user.role);
+
+      const cookieOptions = {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: ms("7 days"),
+      };
+
+      res.cookie("accessToken", accessToken, cookieOptions);
+      res.cookie("refreshToken", refreshToken, cookieOptions);
+
+      return res.status(200).json({
+        success: true,
+        message: "Logged in successfully",
+        data: {
+          newUser,
+          accessToken,
+          refreshToken,
+        },
+      });
+    }
+  } catch (error) {
+    console.error(`Error in loginWithGoogle controller`);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
