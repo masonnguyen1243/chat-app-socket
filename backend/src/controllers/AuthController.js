@@ -2,6 +2,8 @@ import User from "../models/UserModel.js";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { ENV } from "../config/environments.js";
+import SendEmail from "../utils/SendEmail.js";
 
 export const register = async (req, res) => {
   try {
@@ -37,6 +39,17 @@ export const register = async (req, res) => {
       password: hashedPassword,
       verifyToken: uuidv4(),
     });
+
+    //Send Email
+    const verificationLink = `${ENV.FRONTEND_URL}/account/verification?email=${newUser.email}&token=${newUser.verifyToken}`;
+    const customSubject = "Please verify your email before using our service";
+    const htmlContent = `
+      <h3>Here is your verification link</h3>
+      <h3>${verificationLink}</h3>
+      <h3>Sincerely, <br/> - Chat app - </h3>
+    `;
+
+    await SendEmail(newUser.email, customSubject, htmlContent);
 
     return res
       .status(StatusCodes.CREATED)
