@@ -129,3 +129,43 @@ export const login = async (req, res) => {
       .json({ success: false, message: error.message });
   }
 };
+
+export const verifyAccount = async (req, res) => {
+  try {
+    const { email, token } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (user.isActive) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        success: false,
+        message: "Your account already active! Please login!",
+      });
+    }
+
+    if (token !== user.verifyToken) {
+      return res
+        .status(StatusCodes.NOT_ACCEPTABLE)
+        .json({ success: false, message: "Invalid Token" });
+    }
+
+    user.isActive = true;
+    user.verifyToken = null;
+
+    await user.save();
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Verification successfully! Please login!",
+    });
+  } catch (error) {
+    console.error(`Error in verifyAccount controller`);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
