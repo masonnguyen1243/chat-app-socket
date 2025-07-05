@@ -241,3 +241,19 @@ export const loginWithGoogle = async (req, res) => {
       .json({ success: false, message: error.message });
   }
 };
+
+export const logout = async (req, res) => {
+  try {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, message: "Logged out successfully!" });
+  } catch (error) {
+    console.error(`Error in logout controller`);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
