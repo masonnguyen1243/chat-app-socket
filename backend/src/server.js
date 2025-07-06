@@ -2,7 +2,6 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { ENV } from "./config/environments.js";
-import fileUpload from "express-fileupload";
 import { connectDB } from "./config/db.js";
 import { initRoutes } from "./routes/index.js";
 
@@ -21,12 +20,6 @@ app.use(
   })
 );
 
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "./temp/",
-  })
-);
 initRoutes(app);
 connectDB();
 

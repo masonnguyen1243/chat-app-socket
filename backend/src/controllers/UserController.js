@@ -1,6 +1,7 @@
 import User from "../models/UserModel.js";
 import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
+import { CloudinaryProvider } from "../utils/CloudinaryUpload.js";
 
 export const getUser = async (req, res) => {
   try {
@@ -85,6 +86,41 @@ export const updateUser = async (req, res) => {
     });
   } catch (error) {
     console.error(`Error in updateUser controller`);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ success: false, message: error.message });
+  }
+};
+
+export const changeAvatar = async (req, res) => {
+  try {
+    const avatar = req.file;
+    const userId = req.user.userId;
+    const user = await User.findOne({ _id: userId });
+    if (!user) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const uploadResult = await CloudinaryProvider.streamUpload(
+      avatar?.buffer,
+      "CHAT_APP_SOCKET_USER_AVATAR"
+    );
+
+    const updatedUser = await User.findOneAndUpdate(
+      user._id,
+      { avatar: uploadResult.secure_url },
+      { new: true }
+    );
+
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: "Avatar updated successfully!",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error(`Error in changeAvatar controller`);
     return res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ success: false, message: error.message });
