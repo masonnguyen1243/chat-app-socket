@@ -4,7 +4,6 @@ import { StatusCodes } from "http-status-codes";
 
 export const verifyToken = async (req, res, next) => {
   const clientAccessToken = req.cookies?.accessToken;
-  console.log("🚀 ~ verifyToken ~ clientAccessToken:", clientAccessToken);
 
   if (!clientAccessToken) {
     return res
@@ -23,7 +22,6 @@ export const verifyToken = async (req, res, next) => {
     const decoded = jwt.decode(clientAccessToken, ENV.JWT_ACCESS_SECRET_KEY);
 
     req.user = decoded;
-    console.log(req.user);
 
     next();
   } catch (error) {
