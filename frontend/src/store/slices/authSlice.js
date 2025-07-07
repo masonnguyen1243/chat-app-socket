@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import authorizeAxiosInstance from "~/lib/axios";
-import { connectSocket } from "~/lib/socket";
+import { connectSocket, disconnectSocket } from "~/lib/socket";
 
 export const getUser = createAsyncThunk("auth/getUser", async () => {
   try {
@@ -12,6 +12,19 @@ export const getUser = createAsyncThunk("auth/getUser", async () => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching user: ${error}`);
+  }
+});
+
+export const logoutUser = createAsyncThunk("auth/logoutUser", async () => {
+  try {
+    await authorizeAxiosInstance.delete(
+      `${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`,
+    );
+
+    disconnectSocket();
+    return null;
+  } catch (error) {
+    console.error(`Error logout user: ${error}`);
   }
 });
 
@@ -39,6 +52,12 @@ const authSlice = createSlice({
       .addCase(getUser.rejected, (state) => {
         state.isCheckingAuth = false;
         state.authUser = null;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.authUser = null;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.authUser = state.auth;
       });
   },
 });
