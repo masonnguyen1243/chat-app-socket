@@ -13,7 +13,7 @@ export const getUser = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    return res.status(StatusCodes.OK).json({ success: false, data: user });
+    return res.status(StatusCodes.OK).json({ success: true, data: user });
   } catch (error) {
     console.error(`Error in getUser controller`);
     return res

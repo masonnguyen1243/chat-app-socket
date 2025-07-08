@@ -1,14 +1,23 @@
 import { LogOut, MessageSquare, Settings, User } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { logoutUser } from "~/store/slices/authSlice";
 
 const Navbar = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { authUser } = useSelector((state) => state.auth);
 
   const handleLogout = () => {
-    dispatch(logoutUser());
+    toast
+      .promise(dispatch(logoutUser()), { pending: "Loading" })
+      .then((res) => {
+        if (!res.error) {
+          toast.success("Logged out successfully");
+          navigate("/login");
+        }
+      });
   };
 
   return (
@@ -42,7 +51,6 @@ const Navbar = () => {
 
                 <button
                   onClick={handleLogout}
-                  to={"/profile"}
                   className="inline-flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-red-700 transition hover:bg-red-100"
                 >
                   <LogOut className="h-5 w-5" />
