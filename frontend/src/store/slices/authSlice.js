@@ -1,5 +1,4 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { toast } from "react-toastify";
 import authorizeAxiosInstance from "~/lib/axios";
 import { connectSocket, disconnectSocket } from "~/lib/socket";
 

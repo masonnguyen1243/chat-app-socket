@@ -111,7 +111,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-blue-600 py-2 font-medium text-white transition duration-200 hover:bg-blue-700"
+                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-blue-600 py-2 font-medium text-white transition duration-200 hover:bg-blue-700"
               >
                 {isLoggingIn ? (
                   <>
