@@ -4,6 +4,7 @@ import Home from "~/pages/Home";
 import Register from "~/pages/Register";
 import Login from "~/pages/Login";
 import Profile from "~/pages/Profile";
+import VerifyAccount from "~/pages/VerifyAccount";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         {/* Others */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/account/verification" element={<VerifyAccount />} />
       </Routes>
     </Router>
   );

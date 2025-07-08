@@ -63,6 +63,22 @@ export const registerUser = createAsyncThunk(
   },
 );
 
+export const verifyAccount = createAsyncThunk(
+  "auth/verifyAccount",
+  async ({ email, token }) => {
+    try {
+      const response = await authorizeAxiosInstance.put(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/verify-account`,
+        { email, token },
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(`Error verifyAccount user: ${error}`);
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
