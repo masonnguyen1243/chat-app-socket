@@ -4,6 +4,7 @@ import Navbar from "~/components/Navbar";
 
 const PrivateRoutes = () => {
   const { authUser } = useSelector((state) => state.auth);
+
   return authUser ? (
     <div>
       <Navbar />

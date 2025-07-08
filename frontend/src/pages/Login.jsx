@@ -5,33 +5,41 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthImagePattern from "~/components/AuthImagePattern";
 import { loginUser } from "~/store/slices/authSlice";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import {
+  EMAIL_RULE,
+  EMAIL_RULE_MESSAGE,
+  FIELD_REQUIRED_MESSAGE,
+  PASSWORD_RULE,
+  PASSWORD_RULE_MESSAGE,
+} from "~/utils/validators";
+import FieldErrorAlert from "~/components/form/FieldErrorAlert";
 
 const Login = () => {
   const [isShowPassword, setIsShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoggingIn } = useSelector((state) => state.auth);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleLogin = (data) => {
+    const { email, password } = data;
 
     toast
-      .promise(dispatch(loginUser(formData)), {
+      .promise(dispatch(loginUser({ email, password })), {
         pending: "Loading",
       })
       .then((res) => {
-        if (!res.error) {
-          toast.success("Logged in successfully");
-          setFormData({
-            email: "",
-            password: "",
-          });
+        if (!res.payload.data.success) {
+          reset();
           navigate("/");
+          toast.success("Logged in successfully");
         }
       });
   };
@@ -53,47 +61,53 @@ const Login = () => {
             </div>
 
             {/* Login form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(handleLogin)} className="space-y-6">
               {/* Email */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Email
                 </label>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
                     <Mail className="h-5 w-5" />
                   </span>
                   <input
                     type="email"
                     placeholder="example@gmail.com"
-                    required
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    {...register("email", {
+                      required: FIELD_REQUIRED_MESSAGE,
+                      pattern: {
+                        value: EMAIL_RULE,
+                        message: EMAIL_RULE_MESSAGE,
+                      },
+                    })}
                     className="w-full rounded-md border border-gray-300 py-2 pr-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
+                <FieldErrorAlert errors={errors} fieldName={"email"} />
               </div>
               {/* Password */}
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <div className="relative">
+                <div className="relative flex items-center">
                   <span className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400">
                     <Lock className="h-5 w-5" />
                   </span>
                   <input
                     type={isShowPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    required
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
+                    {...register("password", {
+                      required: FIELD_REQUIRED_MESSAGE,
+                      pattern: {
+                        value: PASSWORD_RULE,
+                        message: PASSWORD_RULE_MESSAGE,
+                      },
+                    })}
                     className="w-full rounded-md border border-gray-300 py-2 pr-3 pl-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
+
                   <button
                     type="button"
                     onClick={() => setIsShowPassword(!isShowPassword)}
@@ -106,6 +120,7 @@ const Login = () => {
                     )}
                   </button>
                 </div>
+                <FieldErrorAlert errors={errors} fieldName={"password"} />
               </div>
 
               <button

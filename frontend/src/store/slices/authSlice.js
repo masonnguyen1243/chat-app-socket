@@ -7,9 +7,8 @@ export const getUser = createAsyncThunk("auth/getUser", async () => {
     const response = await authorizeAxiosInstance.get(
       `${import.meta.env.VITE_BACKEND_URL}/api/user/getUser`,
     );
-    console.log("getUser", response);
 
-    connectSocket(response.data.data._id);
+    connectSocket(response.data);
 
     return response.data;
   } catch (error) {
@@ -38,12 +37,28 @@ export const loginUser = createAsyncThunk(
         `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,
         formData,
       );
-      console.log("loginUser", response);
 
-      connectSocket(response.data.data.user._id);
+      connectSocket(response.data.data);
       return response.data;
     } catch (error) {
-      console.error(`Error logout user: ${error}`);
+      console.error(`Error loginUser : ${error}`);
+    }
+  },
+);
+
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (formData) => {
+    try {
+      const response = await authorizeAxiosInstance.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/register`,
+        formData,
+      );
+
+      connectSocket(response.data.data);
+      return response.data;
+    } catch (error) {
+      console.error(`Error registerUser user: ${error}`);
     }
   },
 );
@@ -88,6 +103,16 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state) => {
         state.isLoggingIn = false;
+      })
+      .addCase(registerUser.pending, (state) => {
+        state.isSigningUp = true;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isSigningUp = false;
+        state.authUser = action.payload;
+      })
+      .addCase(registerUser.rejected, (state) => {
+        state.isSigningUp = false;
       });
   },
 });
