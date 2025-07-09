@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.get("/getUser", verifyToken, getUser);
 
-router.get("/getUsers", verifyToken, isAdmin, getUsers);
+router.get("/getUsers", verifyToken, getUsers);
 
 router.put("/updateUser/:id", verifyToken, updateUser);
 

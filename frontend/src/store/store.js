@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
+import chatReducer from "./slices/chatSlice";
 
 //Config redux-persist
 import { combineReducers } from "redux";
@@ -15,6 +16,7 @@ const rootPersistConfig = {
 
 const reducers = combineReducers({
   auth: authReducer,
+  chat: chatReducer,
 });
 
 // Thực hiện persist Reducer
