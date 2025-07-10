@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { getSocket } from "~/lib/socket";
+import { sendMessage } from "~/store/slices/chatSlice";
 
 const MessageInput = () => {
   const [text, setText] = useState("");
@@ -12,6 +13,7 @@ const MessageInput = () => {
   const fileInputRef = useRef();
   const dispatch = useDispatch();
   const { selectedUser } = useSelector((state) => state.chat);
+  console.log(mediaPreview);
 
   const handleChange = (e) => {
     const file = e.target.files[0];
@@ -20,15 +22,14 @@ const MessageInput = () => {
     setMedia(file);
     const type = file.type;
 
-    if (type.startWith("image/")) {
+    if (type.startsWith("image/")) {
       setMediaType("image");
-      const reader = new FileReader(
-        (reader.onload = () => {
-          setMediaPreview(reader.result);
-        }),
-        reader.readAsDataURL(file),
-      );
-    } else if (type.startWith("video/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setMediaPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else if (type.startsWith("video/")) {
       setMediaType("video");
       const videoUrl = URL.createObjectURL(file);
       setMediaPreview(videoUrl);
@@ -57,7 +58,7 @@ const MessageInput = () => {
     data.append("text", text.trim());
     data.append("media", media);
 
-    // dispatch(sendMessage(data));
+    dispatch(sendMessage(data));
 
     // reset all
     setText("");
@@ -109,7 +110,7 @@ const MessageInput = () => {
               <button
                 onClick={removeMedia}
                 type="button"
-                className="absolute -top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-800 text-white hover:bg-black"
+                className="absolute -top-2 -right-2 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-zinc-800 text-white hover:bg-black"
               >
                 <X className="h-3 w-3" />
               </button>
