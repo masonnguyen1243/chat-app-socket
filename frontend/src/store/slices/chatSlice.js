@@ -13,10 +13,25 @@ export const getUsers = createAsyncThunk("chat/getUsers", async () => {
   }
 });
 
+export const getMessages = createAsyncThunk(
+  "chat/getMessages",
+  async (userId) => {
+    try {
+      const response = await authorizeAxiosInstance.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/message/getMessages/${userId}`,
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+);
+
 const chatSlice = createSlice({
   name: "chat",
   initialState: {
-    message: [],
+    messages: [],
     users: [],
     selectedUser: null,
     isUsersLoading: false,
@@ -27,7 +42,7 @@ const chatSlice = createSlice({
       state.selectedUser = action.payload;
     },
     pushNewMessage: (state, action) => {
-      state.message.push(action.payload);
+      state.messages.push(action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -41,6 +56,16 @@ const chatSlice = createSlice({
       })
       .addCase(getUsers.rejected, (state) => {
         state.isUsersLoading = false;
+      })
+      .addCase(getMessages.pending, (state) => {
+        state.isMessageLoading = true;
+      })
+      .addCase(getMessages.fulfilled, (state, action) => {
+        state.isMessageLoading = false;
+        state.messages = action.payload.data;
+      })
+      .addCase(getMessages.rejected, (state) => {
+        state.isMessageLoading = false;
       });
   },
 });
