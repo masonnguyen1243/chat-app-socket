@@ -24,7 +24,8 @@ export const getUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find({}).select("-password");
+    const userId = req.user.userId;
+    const users = await User.find({ _id: { $ne: userId } }).select("-password");
     if (!users) {
       return res
         .status(StatusCodes.NOT_FOUND)
